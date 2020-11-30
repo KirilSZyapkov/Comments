@@ -1,0 +1,61 @@
+function comments(input) {
+    let userList = [];
+    let articleList = [];
+    let listOfComments = {};
+
+    input.forEach(element => {
+        if (element.includes("user")) {
+            let end = "user";
+            let userAcc = element.slice(end.length).trim();
+            if (!userList.includes(userAcc)) {
+                userList.push((userAcc));
+            }
+        } else if (element.includes("article")) {
+            let end = "article";
+            let articleName = element.slice(end.length).trim();
+            if (!articleList.includes(articleName)) {
+                articleList.push((articleName));
+            }
+        }
+    });
+
+    input.forEach(element => {
+        if (element.includes("posts on")) {
+            let [info, comment] = element.split(": ");
+            let [userAcc, articleName] = info.split(" posts on ");
+            if (userList.includes(userAcc) && articleList.includes(articleName)) {
+                if (!listOfComments.hasOwnProperty(articleName)) {
+                    listOfComments[articleName] = {};
+                }
+                if (!listOfComments[articleName].hasOwnProperty(userAcc)) {
+                    listOfComments[articleName][userAcc] = [];
+                }
+                listOfComments[articleName][userAcc].push(comment);
+            }
+        }
+    });
+
+    let sorted = Object.entries(listOfComments);
+    sorted.forEach(element => {
+        let listComments = Object.entries(element[1]);
+        let sumComment = 0;
+        listComments.forEach(element => {
+            sumComment += element[1].length;
+        })
+        element[1] = sumComment;
+    });
+    sorted.sort((a, b) => b[1] - a[1]);
+    sorted.forEach(element => {
+        console.log(`Comments on ${element[0]}`);
+        let keys = Object.entries(listOfComments[element[0]]);
+        keys.sort((a, b) => a[0].localeCompare(b[0]));
+        for (let key of keys) {
+            let text = key[1];
+            text.forEach(element=>{
+                element=element.split(`, `).join(` - `)
+                console.log(`--- From user ${key[0]}: ${element}`);
+            });
+
+        }
+    });
+}
